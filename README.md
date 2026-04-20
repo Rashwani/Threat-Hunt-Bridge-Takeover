@@ -214,10 +214,12 @@ All timestamps are in UTC, November 25, 2025
 
 
 Root Cause Analysis
+
 The root cause of this incident traces directly to the initial compromise documented in the preceding investigation (CTF 1 – Port of Entry). The account yuki.tanaka was compromised during the initial breach and the credentials were not reset promptly, allowing the attacker to reuse them for lateral movement to the administrative workstation azuki-adminpc.
 Contributing factors include insufficient network segmentation that permitted unrestricted RDP access between workstations, a lack of multi-factor authentication on RDP sessions, and the absence of application whitelisting that would have prevented execution of meterpreter.exe and other unsigned offensive tools. The presence of plaintext credential files (OLD-Passwords.lnk) and a KeePass database with an extractable master password further compounded the exposure.
 
 Response and Recovery
+
 Immediate Response Actions
 Isolated azuki-adminpc from the network via VLAN segmentation
 Disabled both yuki.tanaka and yuki.tanaka2 accounts in Active Directory
@@ -225,12 +227,14 @@ Blocked C2 and exfiltration domains/IPs at the perimeter firewall
 Preserved all forensic evidence including SIEM logs, memory dumps, and disk images
 
 Eradication Measures
+
 Removed meterpreter.exe, silentlynx.exe, m.exe, and all associated staging directory contents
 Deleted the backdoor account yuki.tanaka2
 Rotated credentials for yuki.tanaka and all accounts whose passwords were stored in the compromised KeePass vault or OLD-Passwords.lnk file
 Cleared all Chrome saved passwords on the affected system and forced re-authentication
 
 Post-Incident Recommendations
+
 Enforce multi-factor authentication for all RDP and remote access sessions
 Implement network segmentation restricting lateral RDP access between workstations
 Deploy application whitelisting to prevent execution of unauthorized binaries
